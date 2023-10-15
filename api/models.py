@@ -5,7 +5,7 @@ from mongoengine import (
     EmbeddedDocumentListField,
     EmbeddedDocument,
 )
-from mongoengine import ListField, DateTimeField, EmailField, BinaryField
+from mongoengine import ListField, DateTimeField, EmailField
 
 
 class JiraIntegration(Document):
@@ -19,9 +19,12 @@ class Org(Document):
 
 
 class Bountier(Document):
+    user_github = StringField()
     user_name = StringField()
-    user_email = EmailField()
+    user_email = ListField(EmailField)
+    user_primary_email = EmailField()
     user_org = ReferenceField(Org)
+    user_github_auth = StringField()
 
 
 class Skill(Document):
@@ -41,7 +44,6 @@ class Freelancer(Document):
     user_resume = URLField()
     user_other_sources = URLField()
     user_skills = EmbeddedDocumentListField(UserSkills)
-    user_password = BinaryField()
 
 
 class Bounty(Document):
@@ -55,4 +57,4 @@ class Bounty(Document):
     bounty_deadline = DateTimeField()
     bounty_required_skills = ListField(StringField)
     bounty_completed = BooleanField()  # true if bounty is completed
-    user_password = BinaryField()
+    user_gh_token = StringField()
