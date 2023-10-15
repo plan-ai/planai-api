@@ -42,42 +42,30 @@ def parse_skills(skills_str):
     return skills
 
 
-def annotate_task(jwt_auth: str, task: str):
-    isAuthorized, resp = validate_user(jwt_auth)
-    if not isAuthorized:
-        return resp
-    try:
-        openai_api_key = resp.openai_token
-        if openai_api_key is None:
-            openai_api_key = config["openAI"]["apiKey"]
-        model = OpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            openai_api_key=openai_api_key,
-        )
-        prompt = """This task involves you building a decision tree of necessary technical skill sets only when assigning this task to a freelancer. Assign weights based on what would make you most comfortable before picking a candidate. 
+def annotate_task_skills(openai_api_key: str, task: str):
+    model = OpenAI(
+        model_name=model_name,
+        temperature=temperature,
+        openai_api_key=openai_api_key,
+    )
+    prompt = """This task involves you building a decision tree of necessary technical skill sets only when assigning this task to a freelancer. Assign weights based on what would make you most comfortable before picking a candidate. 
 
-        Coding Task: {}
+    Coding Task: {}
 
-        only return the decision tree in the final output, which is in the following format:
+    only return the decision tree in the final output, which is in the following format:
 
-        1. Skill Name: Skill 1 (Weightage: its weightage)
-            1.1 Subskill Subskill 1 (Weightage: its weightage)
-            1.2 Subskill Subskill 2 (Weightage: its weightage)
-        2. Skill Name: Skill 2 (Weightage: its weightage)
-            2.1 Subskill Subskill 1 (Weightage: its weightage)
+    1. Skill Name: Skill 1 (Weightage: its weightage)
+        1.1 Subskill Subskill 1 (Weightage: its weightage)
+        1.2 Subskill Subskill 2 (Weightage: its weightage)
+    2. Skill Name: Skill 2 (Weightage: its weightage)
+        2.1 Subskill Subskill 1 (Weightage: its weightage)
 
-        and so on. Need the final output with no extra text as I need to parse it.""".format(
-            task
-        )
-        output = model(prompt)
-        parsed = parse_skills(output)
-        message = {"message": parsed}
-        status_code = 200
-    except Exception as err:
-        message = {"message": "Could not parse skills", "reason": repr(err)}
-        status_code = 400
-    return make_response(jsonify(message), status_code)
+    and so on. Need the final output with no extra text as I need to parse it.""".format(
+        task
+    )
+    output = model(prompt)
+    parsed = parse_skills(output)
+    return parsed
 
 
 def get_score(skills, skills_needed, stakes, weigh):

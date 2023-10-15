@@ -2,7 +2,10 @@ from models import Bounty
 from authentication import validate_user
 from flask import make_response, jsonify
 from task_annotation import annotate_task_skills
+import configparser
 
+config = configparser.ConfigParser()
+config.read("../config.ini")
 
 def get_bounties_by_user(jwt_auth: str):
     isAuthorized, resp = validate_user(jwt_auth)
@@ -33,7 +36,10 @@ def annotate_task(jwt_auth: str, task_desc: str):
     if not isAuthorized:
         return resp
     try:
-        message = {"parsed_skills": annotate_task_skills(task_desc)}
+        openai_api_key = resp.openai_token
+        if openai_api_key is None:
+            openai_api_key = config["openAI"]["apiKey"]
+        message = {"parsed_skills": annotate_task_skills(openai_api_key,task_desc)}
         status_code = 200
     except Exception as err:
         message = {"response": "Could not complete your request", "reason": repr(err)}
