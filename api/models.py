@@ -21,7 +21,7 @@ class Org(Document):
 class Bountier(Document):
     user_github = StringField()
     user_name = StringField()
-    user_email = ListField(EmailField)
+    user_email = ListField(EmailField())
     user_primary_email = EmailField()
     user_org = ReferenceField(Org)
     user_github_auth = StringField()
@@ -56,7 +56,7 @@ class Freelancer(Document):
 
 class Bounty(Document):
     bounty_title = StringField()
-    bounty_description = StringField()
+    bounty_desc = StringField()
     bounty_stake = IntField()
     bounty_assigned = ReferenceField(
         Freelancer, default=None

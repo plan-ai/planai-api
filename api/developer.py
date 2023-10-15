@@ -1,8 +1,8 @@
 from flask import make_response, jsonify
 from models import Freelancer
+from authentication import validate_user
 
-
-def get_developers(resp: str, job_skills):
+def get_developers(jwt_auth: str, job_skills):
     isAuthorized, resp = validate_user(jwt_auth)
     if not isAuthorized:
         return resp

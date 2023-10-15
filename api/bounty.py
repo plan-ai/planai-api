@@ -2,6 +2,7 @@ from models import Bounty
 from authentication import validate_user
 from flask import make_response, jsonify
 from task_annotation import annotate_task_skills
+from datetime import datetime
 import configparser
 
 config = configparser.ConfigParser()
@@ -18,10 +19,11 @@ def get_bounties_by_user(jwt_auth: str):
         bounty_list = []
         for bounty in bounties:
             bounty = bounty.to_mongo().to_dict()
+            del bounty["_id"]
+            bounty["bounty_creator"] = str(bounty["bounty_creator"])
             bounty_list.append(bounty)
         message = {
             "bounty_creator": resp.user_email,
-            "bounty_creator_org": resp.user_org.org_name,
             "bounties": bounty_list,
         }
         status_code = 200
@@ -60,23 +62,24 @@ def add_bounty(
         return resp
     try:
         bounty = Bounty(
-            bounty_titl=bounty_title,
-            bounty_desc=bount_desc,
+            bounty_title=bounty_title,
+            bounty_desc=bounty_desc,
             bounty_stake=bounty_stake,
-            bounty_deadline=bounty_deadline,
+            bounty_deadline=datetime.strptime(bounty_deadline, '%d/%m/%Y'),
             bounty_required_skills=bounty_required_skills,
+            bounty_creator=resp
         )
         bounty.save()
         message = {
             "message": "Bounty saved successfully",
             "bountyTitle": bounty_title,
-            "bountyDesc": bount_desc,
+            "bountyDesc": bounty_desc,
             "bountyStake": bounty_stake,
             "bountyDeadline": bounty_deadline,
             "bountyRequiredSkiils": bounty_required_skills,
         }
         status_code = 200
     except Exception as err:
-        message = {"message": "Bounty creation failed"}
+        message = {"message": "Bounty creation failed","reason":repr(err)}
         status_code = 400
     return make_response(jsonify(message), 400)

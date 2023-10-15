@@ -25,10 +25,8 @@ class FetchJWT(Resource):
     def post(self):
         body = request.get_json()
         return generate_jwt(
-            body.get("github_id"),
-            body.get("firebase_uid"),
-            body.get("user_gh_access_token"),
-            body.get("pub_key"),
+            body.get("githubId"),
+            body.get("userGhAccessToken"),
         )
 
 
@@ -44,21 +42,22 @@ class Bounty(Resource):
         )
 
     def post(self):
-        body = request.body.get_json()
+        body = request.get_json()
         return add_bounty(
             request.headers.get("Authorization"),
-            body.get("bounty_title"),
-            body.get("bounty_desc"),
-            body.get("bounty_stake"),
-            body.get("bounty_deadline"),
-            body.get("bounty_required_skills"),
+            body.get("bountyTitle"),
+            body.get("bountyDesc"),
+            body.get("bountyStake"),
+            body.get("bountyDeadline"),
+            body.get("bountyRequiredSkills"),
         )
 
 
 class AnnotateTask(Resource):
     def post(self):
+        body = request.get_json()
         return annotate_task(
-            request.headers.get("Authorization"), request.body.get("task_desc")
+            request.headers.get("Authorization"), body.get("taskDesc")
         )
 
 
@@ -69,25 +68,26 @@ class EstimateTime(Resource):
 
 class AddJiraAuth(Resource):
     def post(self):
-        return bounty_jira_token(
-            request.headers.get("Authorization"), request.body.get("jira_token")
+        return add_jira(
+            request.headers.get("Authorization"), request.get_json().get("jiraToken")
         )
 
 
 class GetDeveloperForJob(Resource):
     def get(self):
         return get_developers(
-            request.headers.get("Authorization"), request.body.get("task_skills")
+            request.headers.get("Authorization"), request.headers.get("task_skills",[])
         )
 
 
 class OpenAI(Resource):
     def post(self):
+        body = request.get_json()
         return add_openai_token(
             request.headers.get("Authorization"),
-            request.body.get("openai_key"),
-            request.body.get("max_usage"),
-            request.body.get("timely_reminder")
+            body.get("openaiKey"),
+            body.get("maxUsage"),
+            body.get("timelyReminder")
         )
 
 
@@ -101,4 +101,4 @@ api.add_resource(GetDeveloperForJob, "/job/qualified_candidates")
 api.add_resource(OpenAI, "/openai")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
