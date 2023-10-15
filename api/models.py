@@ -26,6 +26,7 @@ class Bountier(Document):
     user_org = ReferenceField(Org)
     user_github_auth = StringField()
     bounty_jira_token = StringField()
+    openai_token = StringField()  # might be none as well
 
 
 class Skill(Document):

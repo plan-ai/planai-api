@@ -1,6 +1,6 @@
 from flask import Flask, make_response, jsonify
 from flask_restful import Api, Resource, request
-from authentication import generate_jwt
+from authentication import generate_jwt, add_openai_token
 from bounty import get_bounties_by_user, annotate_task, add_bounty
 from estimation import estimate_time
 from jira_auth import add_jira
@@ -81,6 +81,13 @@ class GetDeveloperForJob(Resource):
         )
 
 
+class OpenAI(Resource):
+    def post(self):
+        return add_openai_token(
+            request.headers.get("Authorization"), request.body.get("openai_key")
+        )
+
+
 api.add_resource(FetchJWT, "/user/setup")
 api.add_resource(SanityCheck, "/")
 api.add_resource(Bounty, "/bounty")
@@ -88,6 +95,7 @@ api.add_resource(AnnotateTask, "/task/annotate")
 api.add_resource(EstimateTime, "/task/time")
 api.add_resource(AddJiraAuth, "/user/jira/auth")
 api.add_resource(GetDeveloperForJob, "/job/qualified_candidates")
+api.add_resource(OpenAI, "/openai")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8001, debug=True)

@@ -130,3 +130,17 @@ def validate_user(token):
         return False, unauthorizedResponse
     except Exception:
         return False, unauthorizedResponse
+
+
+def add_openai_token(jwt_auth: str, openai_token: str):
+    isAuthorized, resp = validate_user(jwt_auth)
+    if not isAuthorized:
+        return resp
+    try:
+        resp.update(set__openai_token=openai_token)
+        message = {"message": "User updated successfully"}
+        status_code = 200
+    except Exception as err:
+        message = {"message": "User update failed", "reason": repr(err)}
+        status_code = 400
+    return make_response(jsonify(message), status_code)

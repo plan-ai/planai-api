@@ -4,10 +4,10 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read("../config.ini")
-openai.api_key = config["openAI"]["apiKey"]
 
 
-def create_embeddings(text: str):
+def create_embeddings(api_key: str, text: str):
+    openai.api_key = api_key
     response = openai.Embedding.create(input=text, model="text-embedding-ada-002")
     return response.data[0]["embedding"]
 
