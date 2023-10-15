@@ -5,9 +5,9 @@ from bounty import get_bounties_by_user, annotate_task, add_bounty
 from estimation import estimate_time
 from jira_auth import add_jira
 from developer import get_developers
+from version import get_version_issues
 import mongoengine
 from flask_cors import CORS
-
 import configparser
 
 config = configparser.ConfigParser()
@@ -56,9 +56,7 @@ class Bounty(Resource):
 class AnnotateTask(Resource):
     def post(self):
         body = request.get_json()
-        return annotate_task(
-            request.headers.get("Authorization"), body.get("taskDesc")
-        )
+        return annotate_task(request.headers.get("Authorization"), body.get("taskDesc"))
 
 
 class EstimateTime(Resource):
@@ -76,7 +74,7 @@ class AddJiraAuth(Resource):
 class GetDeveloperForJob(Resource):
     def get(self):
         return get_developers(
-            request.headers.get("Authorization"), request.headers.get("task_skills",[])
+            request.headers.get("Authorization"), request.headers.get("task_skills", [])
         )
 
 
@@ -87,7 +85,16 @@ class OpenAI(Resource):
             request.headers.get("Authorization"),
             body.get("openaiKey"),
             body.get("maxUsage"),
-            body.get("timelyReminder")
+            body.get("timelyReminder"),
+        )
+
+
+class GetVersionIssues(Resource):
+    def get(self):
+        return get_version_issues(
+            request.headers.get("Authorization"),
+            request.args.get("lang"),
+            request.get_json(),
         )
 
 
@@ -99,6 +106,7 @@ api.add_resource(EstimateTime, "/task/time")
 api.add_resource(AddJiraAuth, "/user/jira/auth")
 api.add_resource(GetDeveloperForJob, "/job/qualified_candidates")
 api.add_resource(OpenAI, "/openai")
+api.add_resource(GetVersionIssues, "/dependencies/version/issues")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

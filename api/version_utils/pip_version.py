@@ -3,7 +3,7 @@ from packaging.requirements import Requirement
 from packaging.version import parse as parse_version
 
 
-def get_sub_dependencies(package_name):
+def get_python_sub_dependencies(package_name):
     url = f"https://pypi.org/pypi/{package_name}/json"
     response = requests.get(url)
 
@@ -23,7 +23,6 @@ def get_sub_dependencies(package_name):
         if "extra" not in dep:  # Ignoring extra requirements
             requirement = Requirement(dep)
             specifier = requirement.specifier
-
             if specifier:
                 # Calculate min and max version from specifier
                 min_version = None

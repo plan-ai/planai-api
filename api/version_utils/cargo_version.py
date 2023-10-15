@@ -36,7 +36,6 @@ def parse_version_spec(version_spec):
 def get_crate_dependencies(crate_name):
     url = f"https://crates.io/api/v1/crates/{crate_name}"
     response = requests.get(url)
-
     if response.status_code != 200:
         print(f"Failed to fetch data for {crate_name}")
         return None

@@ -8,6 +8,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read("../config.ini")
 
+
 def get_bounties_by_user(jwt_auth: str):
     isAuthorized, resp = validate_user(jwt_auth)
     if not isAuthorized:
@@ -41,7 +42,7 @@ def annotate_task(jwt_auth: str, task_desc: str):
         openai_api_key = resp.openai_token
         if openai_api_key is None:
             openai_api_key = config["openAI"]["apiKey"]
-        message = {"parsed_skills": annotate_task_skills(openai_api_key,task_desc)}
+        message = {"parsed_skills": annotate_task_skills(openai_api_key, task_desc)}
         status_code = 200
     except Exception as err:
         message = {"response": "Could not complete your request", "reason": repr(err)}
@@ -65,9 +66,9 @@ def add_bounty(
             bounty_title=bounty_title,
             bounty_desc=bounty_desc,
             bounty_stake=bounty_stake,
-            bounty_deadline=datetime.strptime(bounty_deadline, '%d/%m/%Y'),
+            bounty_deadline=datetime.strptime(bounty_deadline, "%d/%m/%Y"),
             bounty_required_skills=bounty_required_skills,
-            bounty_creator=resp
+            bounty_creator=resp,
         )
         bounty.save()
         message = {
@@ -80,6 +81,6 @@ def add_bounty(
         }
         status_code = 200
     except Exception as err:
-        message = {"message": "Bounty creation failed","reason":repr(err)}
+        message = {"message": "Bounty creation failed", "reason": repr(err)}
         status_code = 400
     return make_response(jsonify(message), 400)
