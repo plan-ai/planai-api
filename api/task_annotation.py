@@ -68,7 +68,7 @@ def annotate_task_skills(task: str):
     return parsed
 
 
-def get_score(skills: list[str], skills_needed: list[str], stakes: list[int], weigh):
+def get_score(skills, skills_needed, stakes, weigh):
     total_score = 0
     for i in range(len(skills)):
         skill = skills[i]

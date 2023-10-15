@@ -7,7 +7,7 @@ config.read("../config.ini")
 openai.api_key = config["openAI"]["apiKey"]
 
 
-def create_embeddings(text: str) -> list[int]:
+def create_embeddings(text: str):
     response = openai.Embedding.create(input=text, model="text-embedding-ada-002")
     return response.data[0]["embedding"]
 

@@ -1,5 +1,5 @@
 import jwt
-from models import Users
+from models import Bountier
 import requests
 from flask import make_response, jsonify
 import configparser
@@ -81,9 +81,9 @@ def generate_jwt(github_uid, gh_access_token):
         ) = verify_gh_access_token(github_uid, gh_access_token)
         if not is_gh_valid:
             raise Exception
-        user = Users.objects(user_github=github_uid).first()
+        user = Bountier.objects(user_github=github_uid).first()
         if user is None:
-            user = Users(
+            user = Bountier(
                 user_github=github_uid,
                 user_name=user_gh_name,
                 user_github_auth=gh_access_token,
@@ -124,7 +124,7 @@ def validate_user(token):
             _,
             _,
         ) = verify_gh_access_token(github_uid, gh_access_token)
-        user = Users.objects(user_github=github_uid).first()
+        user = Bountier.objects(user_github=github_uid).first()
         if user is not None and is_gh_valid:
             return True, user
         return False, unauthorizedResponse
