@@ -1,2 +1,2 @@
-def validate_user(jwt_auth:str):
+def validate_user(jwt_auth: str):
     pass

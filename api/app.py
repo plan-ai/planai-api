@@ -12,7 +12,7 @@ app = Flask(__name__)
 api = Api(app)
 cors = CORS(app)
 
-#connects to mongoengine
+# connects to mongoengine
 mongoengine.connect(config["database_name"])
 
 if __name__ == "__main__":
