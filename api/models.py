@@ -25,6 +25,7 @@ class Bountier(Document):
     user_primary_email = EmailField()
     user_org = ReferenceField(Org)
     user_github_auth = StringField()
+    bounty_jira_token = StringField()
 
 
 class Skill(Document):
@@ -35,6 +36,8 @@ class UserSkills(EmbeddedDocument):
     skill = ReferenceField(Skill)
     skill_stake = IntField()
 
+    user_gh_token = StringField()
+
 
 class Freelancer(Document):
     user_name = StringField()
@@ -43,6 +46,8 @@ class Freelancer(Document):
     user_linkedin = URLField()
     user_resume = URLField()
     user_other_sources = URLField()
+    user_avg_rating = IntField()
+    user_profile_pic = URLField()
     user_skills = EmbeddedDocumentListField(UserSkills)
 
 
@@ -51,10 +56,9 @@ class Bounty(Document):
     bounty_description = StringField()
     bounty_stake = IntField()
     bounty_assigned = ReferenceField(
-        Freelancer
+        Freelancer, default=None
     )  # might be none as well if not yet assigned
     bounty_creator = ReferenceField(Bountier)  # can not be none
     bounty_deadline = DateTimeField()
     bounty_required_skills = ListField(StringField)
-    bounty_completed = BooleanField()  # true if bounty is completed
-    user_gh_token = StringField()
+    bounty_completed = BooleanField(default=False)  # true if bounty is completed
