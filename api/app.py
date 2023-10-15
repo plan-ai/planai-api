@@ -84,7 +84,10 @@ class GetDeveloperForJob(Resource):
 class OpenAI(Resource):
     def post(self):
         return add_openai_token(
-            request.headers.get("Authorization"), request.body.get("openai_key")
+            request.headers.get("Authorization"),
+            request.body.get("openai_key"),
+            request.body.get("max_usage"),
+            request.body.get("timely_reminder")
         )
 
 

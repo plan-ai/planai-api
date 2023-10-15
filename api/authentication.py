@@ -132,12 +132,18 @@ def validate_user(token):
         return False, unauthorizedResponse
 
 
-def add_openai_token(jwt_auth: str, openai_token: str):
+def add_openai_token(
+    jwt_auth: str, openai_token: str, max_usage: int, timely_reminder: int
+):
     isAuthorized, resp = validate_user(jwt_auth)
     if not isAuthorized:
         return resp
     try:
-        resp.update(set__openai_token=openai_token)
+        resp.update(
+            set__openai_token=openai_token,
+            max_usage=max_usage,
+            timely_reminder=timely_reminder,
+        )
         message = {"message": "User updated successfully"}
         status_code = 200
     except Exception as err:

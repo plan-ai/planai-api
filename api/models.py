@@ -27,6 +27,8 @@ class Bountier(Document):
     user_github_auth = StringField()
     bounty_jira_token = StringField()
     openai_token = StringField()  # might be none as well
+    max_usage = IntField()
+    timely_reminder = IntField()
 
 
 class Skill(Document):
