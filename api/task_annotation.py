@@ -1,8 +1,4 @@
 from langchain.llms import OpenAI
-
-from langchain.output_parsers import PydanticOutputParser
-from pydantic import BaseModel, Field, field_validator
-from typing import List
 from similarity import calc_similarity
 
 import configparser

@@ -83,4 +83,4 @@ def add_bounty(
     except Exception as err:
         message = {"message": "Bounty creation failed", "reason": repr(err)}
         status_code = 400
-    return make_response(jsonify(message), 400)
+    return make_response(jsonify(message), status_code)

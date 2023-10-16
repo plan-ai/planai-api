@@ -6,6 +6,7 @@ from estimation import estimate_time
 from jira_auth import add_jira
 from developer import get_developers
 from version import get_version_issues
+from annoymize_issue import anonymize_issue
 import mongoengine
 from flask_cors import CORS
 import configparser
@@ -95,6 +96,13 @@ class GetVersionIssues(Resource):
             request.headers.get("Authorization"),
             request.args.get("lang"),
             request.get_json(),
+        )
+
+
+class AnonymizeIssue(Resource):
+    def post(self):
+        return anonymize_issue(
+            request.headers.get("Authorization"), request.get_json().get("issueDesc")
         )
 
 
