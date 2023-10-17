@@ -1,9 +1,10 @@
+import io
+import os
 import re
 
 from setuptools import find_packages
 from setuptools import setup
-import os
-import io
+
 
 def read(filename):
     filename = os.path.join(os.path.dirname(__file__), filename)
@@ -12,11 +13,11 @@ def read(filename):
         return re.sub(text_type(r":[a-z]+:`~?(.*?)`"), text_type(r"``\1``"), fd.read())
 
 
-with open("api/requirements.txt") as f:
+with open("requirements.txt") as f:
     required = f.read().splitlines()
 
 setup(
-    name="DefiOSPython",
+    name="planAIAPI",
     version="0.0.1",
     url="https://github.com/defi-os/plan.ai-api",
     license="MIT License",
