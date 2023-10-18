@@ -1,6 +1,5 @@
-from mongoengine import EmbeddedDocument,StringField
-from app.openai.model import OpenAI
+from mongoengine import StringField, IntField, Document
 
-class Plan(EmbeddedDocument):
+class Plan(Document):
     plan_type = StringField(choices=["freeTier"])
-    open_ai_api_integration = OpenAI()
+    plan_billing = IntField()  # plan charges per month
