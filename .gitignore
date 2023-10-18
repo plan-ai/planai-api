@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 
 #ignore all config files
+*.ini

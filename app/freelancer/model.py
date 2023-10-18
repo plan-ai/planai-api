@@ -1,4 +1,5 @@
-from mongoengine import Document,StringField, EmailField, URLField
+from mongoengine import Document, StringField, EmailField, URLField
+
 
 class Freelancer(Document):
     user_name = StringField()
@@ -7,4 +8,4 @@ class Freelancer(Document):
     user_github = URLField()
     user_linkedin = URLField()
     user_resume = URLField()
-    user_additional_metadata = URLField(optional=True)  
+    user_additional_metadata = URLField(optional=True)
