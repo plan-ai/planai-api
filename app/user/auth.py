@@ -10,20 +10,24 @@ import hashlib
 import jwt
 import configparser
 
-#reads confg file
+# reads confg file
 config = configparser.ConfigParser()
-config.read("../config.ini")
+config.read("config.ini")
 
+# set app defaults
+secret_token = config["AUTH"]["SECRET"]
+session_time = int(config["AUTH"]["EXPIRY"].strip())
 # Create a new SHA-256 hash object
 sha256_hash = hashlib.sha256()
 
 
-def sha256(input:str):
+def sha256(input: str):
     # Update the hash object with the bytes-like object
     sha256_hash.update(input.encode())
 
     # Get the hexadecimal representation of the hash
     return sha256_hash.hexdigest()
+
 
 def create_user(
     user_name: str, user_email: str, user_auth_provider: Auth, user_org: Org
@@ -85,7 +89,7 @@ def encode_jwt(user_auth: Auth, secret_token: str):
     return jwt_token
 
 
-def validate_user(jwt_token: str, secret_token: str, session_time: int):
+def validate_user(jwt_token: str):
     jwt_payload = jwt.decode(jwt_token, secret_token, ["HS256"])
     time_diff = datetime.now() - datetime.strptime(
         jwt_payload["dateTime"], "%Y-%m-%d %H:%M:%S"
@@ -155,14 +159,54 @@ def create_user_github(org_name: str, user_uid: str, user_token: str):
             message = {"message": "User object creation failed"}
             status_code = 400
             return make_response(jsonify(message), status_code)
-        jwt = encode_jwt(auth,config["AUTH"]["SECRET"])
-        messgae = {"message": "User created sucessfully", "user": user._id,"jwt":jwt}
+        jwt = encode_jwt(auth, secret_token)
+        messgae = {"message": "User created sucessfully", "user": user._id, "jwt": jwt}
         status_code = 200
     except Exception as err:
         message = {"messgae": "User creation failed", "reason": repr(err)}
         status_code = 500
     return make_response(jsonify(message), status_code)
 
-def login_user_github(gh_access_token:str):
+
+def login_user_github(github_uid: str, gh_access_token: str):
     try:
         hashed_token = sha256(gh_access_token)
+        auth = Auth(
+            user_auth_provider="github",
+            user_hashed_token=hashed_token,
+            user_uid=github_uid,
+        )
+        user = User.objects(user_auth_provider=auth).first()
+        if user is None:
+            return make_response({"message": "User validator failed"}, 401)
+        message = {
+            "jwt_token": encode_jwt(auth, secret_token),
+            "user_name": user.user_name,
+            "user_email": user.user_email,
+            "user_profile_pic": user.user_profile_pic,
+            "id": str(user._id),
+        }
+        status_code = 200
+    except Exception as err:
+        message = {
+            "message": "User validation failed unexpectedly",
+            "reason": repr(err),
+        }
+        status_code = 500
+    return make_response(jsonify(message), status_code)
+
+
+def update_token(current_jwt: str):
+    try:
+        user = validate_user(current_jwt)
+        if user is None:
+            return make_response({"message": "User validator failed"}, 401)
+        message = {"updated_jwt": encode(user.user_auth_provider, secret_token)}
+        status_code = 200
+    except Exception as err:
+        message = {"message": "JWT auth failed unexpectedly", "reason": repr(err)}
+        status_code = 500
+    return make_response(jsonify(message), status_code)
+
+def create_user_google():
+    pass

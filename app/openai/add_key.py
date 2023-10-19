@@ -1,6 +1,7 @@
 from app.user.model import User
 from app.user.auth import validate_user
-from flask import make_response,jsonify
+from flask import make_response, jsonify
+
 
 def add_openai_key(user: User, token: str) -> bool:
     openai_auth = user.user_org.org_open_ai
@@ -11,6 +12,7 @@ def add_openai_key(user: User, token: str) -> bool:
         return True
     except:
         return False
+
 
 def put_spending_limit(auth: str, openai_key: float):
     user = validate_user(auth)
