@@ -207,6 +207,3 @@ def update_token(current_jwt: str):
         message = {"message": "JWT auth failed unexpectedly", "reason": repr(err)}
         status_code = 500
     return make_response(jsonify(message), status_code)
-
-def create_user_google():
-    pass

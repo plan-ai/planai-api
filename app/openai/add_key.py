@@ -14,7 +14,7 @@ def add_openai_key(user: User, token: str) -> bool:
         return False
 
 
-def put_spending_limit(auth: str, openai_key: float):
+def put_openai_key(auth: str, openai_key: str):
     user = validate_user(auth)
     if user is None:
         return make_response({"message": "User validator failed"}, 401)

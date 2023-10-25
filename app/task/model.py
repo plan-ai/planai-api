@@ -1,4 +1,11 @@
-from mongoengine import Document, ReferenceField, StringField, BooleanField, IntField,EmbeddedDocument
+from mongoengine import (
+    Document,
+    ReferenceField,
+    StringField,
+    BooleanField,
+    IntField,
+    EmbeddedDocument,
+)
 from app.user.model import User
 from app.freelancer.model import Freelancer
 
