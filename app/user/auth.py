@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 from app.user.model import User, Auth, Org
 from app.billing.model import Plan
-from app.openai.model import OpenAI
+from app.openai_config.model import OpenAI
 from flask import make_response, jsonify
 import hashlib
 import jwt

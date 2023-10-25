@@ -2,7 +2,7 @@ from mongoengine import Document, StringField
 from mongoengine import EmbeddedDocument, DateTimeField, ReferenceField
 from mongoengine import EmailField, URLField, EmbeddedDocumentField
 from app.billing.model import Plan
-from app.openai.model import OpenAI
+from app.openai_config.model import OpenAI
 
 
 class Auth(EmbeddedDocument):
