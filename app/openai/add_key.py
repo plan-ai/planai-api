@@ -6,10 +6,7 @@ from flask import make_response, jsonify
 def add_openai_key(user: User, token: str) -> bool:
     org = user.user_org
     try:
-        org.update(
-            set__org_open_ai__custom_token = True,
-            set__org_open_ai__token = token
-        )
+        org.update(set__org_open_ai__custom_token=True, set__org_open_ai__token=token)
         return True
     except Exception as err:
         print(repr(err))

@@ -9,9 +9,7 @@ def add_spending_limit(user: User, spending_limit: float) -> bool:
     if openai_auth.custom_token != True:
         return False
     try:
-        org.update(
-            set__org_open_ai__spending_limit = spending_limit
-        )
+        org.update(set__org_open_ai__spending_limit=spending_limit)
         return True
     except:
         return False

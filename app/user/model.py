@@ -4,6 +4,7 @@ from mongoengine import EmailField, URLField, EmbeddedDocumentField
 from app.billing.model import Plan
 from app.openai.model import OpenAI
 
+
 class Auth(EmbeddedDocument):
     user_auth_provider = StringField(choices=["github", "jira"])
     user_hashed_token = StringField()
@@ -16,6 +17,7 @@ class Org(Document):
     org_created = DateTimeField()
     org_plan = ReferenceField(Plan)
     org_open_ai = EmbeddedDocumentField(OpenAI)
+
 
 class User(Document):
     user_name = StringField()

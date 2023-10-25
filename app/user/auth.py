@@ -58,7 +58,7 @@ def create_org(org_name: str, user_email: str):
         org_domain=org_domain,
         org_created=datetime.now(),
         org_plan=free_plan,
-        org_open_ai=openai
+        org_open_ai=openai,
     )
     try:
         org.save()
@@ -83,7 +83,7 @@ def encode_jwt(user_auth: Auth, secret_token: str):
     jwt_payload = {
         "hashedToken": user_auth.user_hashed_token,
         "authProvider": user_auth.user_auth_provider,
-        "userUID":user_auth.user_uid,
+        "userUID": user_auth.user_uid,
         "dateTime": datetime.now().isoformat(),
     }
     jwt_token = jwt.encode(jwt_payload, secret_token, "HS256")
@@ -96,12 +96,13 @@ def validate_user(jwt_token: str):
     user_auth = Auth(
         user_hashed_token=jwt_payload["hashedToken"],
         user_auth_provider=jwt_payload["authProvider"],
-        user_uid = jwt_payload["userUID"]
+        user_uid=jwt_payload["userUID"],
     )
     user = User.objects(user_auth_provider=user_auth).first()
     if time_diff.seconds < session_time and user is not None:
         return user
     return None
+
 
 def parse_emails(email_response):
     emails = []
@@ -111,7 +112,8 @@ def parse_emails(email_response):
         if email["primary"]:
             primary_email = email["email"]
     return emails, primary_email
-    
+
+
 def verify_gh_access_token(github_uid, gh_access_token):
     """
     Used as an internal helper function to validate if the
@@ -168,7 +170,11 @@ def create_user_github(org_name: str, user_uid: str, user_token: str):
             status_code = 400
             return make_response(jsonify(message), status_code)
         jwt = encode_jwt(auth, secret_token)
-        message = {"message": "User created sucessfully", "user": str(user.id), "jwt": jwt}
+        message = {
+            "message": "User created sucessfully",
+            "user": str(user.id),
+            "jwt": jwt,
+        }
         status_code = 200
     except Exception as err:
         message = {"messgae": "User creation failed", "reason": repr(err)}
@@ -215,3 +221,44 @@ def update_token(current_jwt: str):
         message = {"message": "JWT auth failed unexpectedly", "reason": repr(err)}
         status_code = 500
     return make_response(jsonify(message), status_code)
+
+
+def verify_jira_token(jira_token: str, jira_id: str):
+    headers = {
+        "Authorization": f"Bearer {jira_token}",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+
+    # Make a request to get the current user's details
+    response = requests.get(f"{base_url}/rest/api/2/myself", headers=headers)
+
+    if response.status_code == 200:
+        json_response = response.json()
+        # Check if the account ID matches with the provided one
+        return json_response.get("accountId") == jira_id
+    return False
+
+
+def add_jira_integration(auth: str, jira_token: str, jira_id: str):
+    user = validate_user(auth)
+    if user is None:
+        return make_response({"message": "User validator failed"}, 401)
+    try:
+        is_jira_token_valid = verify_jira_token(jira_token, jira_id)
+        if not is_jira_token_valid:
+            return make_response({"message": "Invalid jira token for jira id"}, 400)
+        hashed_token = sha256(jira_token)
+        auth = create_auth("jira", hashed_token, jira_id)
+        user.update(set__user_additional_auth_provider=auth)
+        message = {
+            "message": "User jira token updated successfully",
+            "user": str(user.id),
+            "jiraToken": jira_token,
+            "jiraId": jira_id,
+        }
+        status_code = 200
+    except:
+        message = {"message": "User jira token updation failed"}
+        status_code = 400
+    return make_response(jsonify(message), 500)

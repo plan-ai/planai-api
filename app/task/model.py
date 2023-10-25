@@ -5,6 +5,7 @@ from mongoengine import (
     BooleanField,
     IntField,
     EmbeddedDocument,
+    EmbeddedDocumentField,
 )
 from app.user.model import User
 from app.freelancer.model import Freelancer
@@ -24,5 +25,5 @@ class Task(Document):
     )  # this represents task reward without dividing by 10^(deimals), hence is an int
     task_assigned = BooleanField(default=False)
     task_assigned_to = ReferenceField(Freelancer, optional=True)
-    task_anonymized = EmbeddedDocument(AnonymizedTask)
+    task_anonymized = EmbeddedDocumentField(AnonymizedTask)
     task_completed = BooleanField()
