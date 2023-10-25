@@ -9,6 +9,7 @@ from flask import make_response, jsonify
 import hashlib
 import jwt
 import configparser
+import requests
 
 # reads confg file
 config = configparser.ConfigParser()
@@ -57,12 +58,12 @@ def create_org(org_name: str, user_email: str):
         org_domain=org_domain,
         org_created=datetime.now(),
         org_plan=free_plan,
-        org_open_ai=OpenAI,
+        org_open_ai=openai
     )
     try:
         org.save()
         return org
-    except:
+    except Exception as err:
         return None
 
 
@@ -73,7 +74,6 @@ def create_auth(user_auth_provider: str, user_hashed_token: str, user_uid: str):
         user_uid=user_uid,
     )
     try:
-        auth.save()
         return auth
     except:
         return None
@@ -83,7 +83,8 @@ def encode_jwt(user_auth: Auth, secret_token: str):
     jwt_payload = {
         "hashedToken": user_auth.user_hashed_token,
         "authProvider": user_auth.user_auth_provider,
-        "dateTime": datetime.now(),
+        "userUID":user_auth.user_uid,
+        "dateTime": datetime.now().isoformat(),
     }
     jwt_token = jwt.encode(jwt_payload, secret_token, "HS256")
     return jwt_token
@@ -91,19 +92,26 @@ def encode_jwt(user_auth: Auth, secret_token: str):
 
 def validate_user(jwt_token: str):
     jwt_payload = jwt.decode(jwt_token, secret_token, ["HS256"])
-    time_diff = datetime.now() - datetime.strptime(
-        jwt_payload["dateTime"], "%Y-%m-%d %H:%M:%S"
-    )
+    time_diff = datetime.now() - datetime.fromisoformat(jwt_payload["dateTime"])
     user_auth = Auth(
         user_hashed_token=jwt_payload["hashedToken"],
         user_auth_provider=jwt_payload["authProvider"],
+        user_uid = jwt_payload["userUID"]
     )
-    user = User.objects(user_auth=user_auth).first()
-    if time_diff < session_time and user is not None:
+    user = User.objects(user_auth_provider=user_auth).first()
+    if time_diff.seconds < session_time and user is not None:
         return user
     return None
 
-
+def parse_emails(email_response):
+    emails = []
+    primary_email = None
+    for email in email_response:
+        emails.append(email["email"])
+        if email["primary"]:
+            primary_email = email["email"]
+    return emails, primary_email
+    
 def verify_gh_access_token(github_uid, gh_access_token):
     """
     Used as an internal helper function to validate if the
@@ -160,7 +168,7 @@ def create_user_github(org_name: str, user_uid: str, user_token: str):
             status_code = 400
             return make_response(jsonify(message), status_code)
         jwt = encode_jwt(auth, secret_token)
-        messgae = {"message": "User created sucessfully", "user": user._id, "jwt": jwt}
+        message = {"message": "User created sucessfully", "user": str(user.id), "jwt": jwt}
         status_code = 200
     except Exception as err:
         message = {"messgae": "User creation failed", "reason": repr(err)}
@@ -184,7 +192,7 @@ def login_user_github(github_uid: str, gh_access_token: str):
             "user_name": user.user_name,
             "user_email": user.user_email,
             "user_profile_pic": user.user_profile_pic,
-            "id": str(user._id),
+            "id": str(user.id),
         }
         status_code = 200
     except Exception as err:
@@ -201,7 +209,7 @@ def update_token(current_jwt: str):
         user = validate_user(current_jwt)
         if user is None:
             return make_response({"message": "User validator failed"}, 401)
-        message = {"updated_jwt": encode(user.user_auth_provider, secret_token)}
+        message = {"updated_jwt": encode_jwt(user.user_auth_provider, secret_token)}
         status_code = 200
     except Exception as err:
         message = {"message": "JWT auth failed unexpectedly", "reason": repr(err)}

@@ -4,12 +4,14 @@ from flask import make_response, jsonify
 
 
 def add_spending_limit(user: User, spending_limit: float) -> bool:
-    openai_auth = user.user_org.org_open_ai
+    org = user.user_org
+    openai_auth = org.org_open_ai
     if openai_auth.custom_token != True:
         return False
-    openai_auth.spending_limit = org_open_ai
     try:
-        user.save()
+        org.update(
+            set__org_open_ai__spending_limit = spending_limit
+        )
         return True
     except:
         return False
@@ -24,7 +26,7 @@ def put_spending_limit(auth: str, spending_limit: float):
             return make_response(
                 {
                     "message": "User spending limit update",
-                    "user": user._id,
+                    "user": str(user.id),
                     "spending_limit": spending_limit,
                 },
                 200,

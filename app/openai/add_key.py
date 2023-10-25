@@ -4,13 +4,15 @@ from flask import make_response, jsonify
 
 
 def add_openai_key(user: User, token: str) -> bool:
-    openai_auth = user.user_org.org_open_ai
-    openai_auth.custom_token = True
-    openai_auth.token = token
+    org = user.user_org
     try:
-        user.save()
+        org.update(
+            set__org_open_ai__custom_token = True,
+            set__org_open_ai__token = token
+        )
         return True
-    except:
+    except Exception as err:
+        print(repr(err))
         return False
 
 
@@ -22,8 +24,8 @@ def put_openai_key(auth: str, openai_key: str):
         if add_openai_key(user, openai_key) is True:
             return make_response(
                 {
-                    "message": "User OpenAI key update",
-                    "user": user._id,
+                    "message": "User OpenAI key updated",
+                    "user": str(user.id),
                     "openai_key": openai_key,
                 },
                 200,

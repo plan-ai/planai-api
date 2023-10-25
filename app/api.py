@@ -2,7 +2,7 @@ import mongoengine
 import configparser
 from flask_restful import Api, Resource, request
 from flask_cors import CORS
-from flask import Flask
+from flask import Flask,make_response,jsonify
 from app.user.auth import create_user_github, update_token, login_user_github
 from app.openai.add_key import put_openai_key
 from app.openai.add_spending_limit import put_spending_limit
@@ -20,7 +20,7 @@ cors = CORS(app)
 
 class GithubSignup(Resource):
     def post(self):
-        body = request.json()
+        body = request.json
         return create_user_github(
             org_name=body["orgName"],
             user_uid=body["githubId"],
@@ -34,10 +34,11 @@ class UpdateToken(Resource):
 
 
 class UserGithubLogin(Resource):
-    def get(self):
+    def post(self):
+        body = request.json
         return login_user_github(
-            github_uid=request.headers.get("githubId"),
-            gh_access_token=request.headers.get("ghAccessToken"),
+            github_uid=body["githubId"],
+            gh_access_token=body["ghAccessToken"],
         )
 
 class OpenAIKey(Resource):
@@ -58,6 +59,11 @@ class OpenAIUsage(Resource):
     def get(self):
         return get_openai_usage(auth = request.headers.get("Authorization"))
 
+class SanityCheck(Resource):
+    def get(self):
+        return make_response(jsonify({"message":"API is up!"}),200)
+
+api.add_resource(SanityCheck,"/")
 api.add_resource(GithubSignup, "/user/signup/github")
 api.add_resource(UpdateToken, "/user/jwt")
 api.add_resource(UserGithubLogin, "/user/login/github")
@@ -65,4 +71,4 @@ api.add_resource(OpenAIKey,"/openai/key")
 api.add_resource(OpenAISpendingLimit,"/openai/spending")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

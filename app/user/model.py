@@ -1,6 +1,6 @@
 from mongoengine import Document, StringField
 from mongoengine import EmbeddedDocument, DateTimeField, ReferenceField
-from mongoengine import EmailField, URLField
+from mongoengine import EmailField, URLField, EmbeddedDocumentField
 from app.billing.model import Plan
 from app.openai.model import OpenAI
 
@@ -15,13 +15,13 @@ class Org(Document):
     org_domain = StringField()
     org_created = DateTimeField()
     org_plan = ReferenceField(Plan)
-    org_open_ai = OpenAI()
+    org_open_ai = EmbeddedDocumentField(OpenAI)
 
 class User(Document):
     user_name = StringField()
     user_email = EmailField()
-    user_auth_provider = Auth()
-    user_additional_auth_provider = Auth()
+    user_auth_provider = EmbeddedDocumentField(Auth)
+    user_additional_auth_provider = EmbeddedDocumentField(Auth)
     user_org = ReferenceField(Org)
     user_created = DateTimeField()
     user_profile_pic = URLField()
